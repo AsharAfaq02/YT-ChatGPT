@@ -2,8 +2,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from openai import OpenAI
 import json
 from pprint import pprint
-import os
-
+import re
 file = open('info.json')
 
 data = json.load(file)
@@ -16,22 +15,19 @@ video_id = video_id.replace('"', '')
 
 prompt = prompt.replace('"', '')
 
-transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en']) 
 
 transcript_string = ''
 
 # iterate over all available transcripts
 
-for transcript in transcript_list:
+for text in transcript:
 
-    for text in transcript.fetch():
+    filtered_text = list(text.values())[0]
 
-        text_value = list(text.values())[0]
+    transcript_string = transcript_string + filtered_text + ' '
 
-        transcript_string = transcript_string + text_value + ' '
-
-prompt_string = prompt + ". Now, use the following data to answer the prompt: " + transcript_string
-
+prompt_string = prompt + " Now, use the following data to answer the prompt: " + transcript_string
 
 client = OpenAI()
 
